@@ -1798,7 +1798,7 @@ function renderCharTable(){
   document.getElementById("untagged-body").innerHTML=untagged.map(g=>`
     <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
       <div style="flex:1;font-size:12px;color:var(--text2)">${g.name}</div>
-      <input type="text" placeholder="Tag character..." value="${charTags[g.name]||""}" style="width:130px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:11px;padding:3px 7px;font-family:inherit" onchange="tagChar('${g.name.replace(/'/g,"\'")}',this.value)">
+      <input type="text" placeholder="Tag character..." value="${charTags[g.name]||""}" style="width:130px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:11px;padding:3px 7px;font-family:inherit" data-adname="${g.name.replace(/"/g,'&quot;')}" onchange="tagChar(this.dataset.adname,this.value)" onkeydown="if(event.key==='Enter'){tagChar(this.dataset.adname,this.value);this.blur();}">
     </div>`).join("");
 }
 
