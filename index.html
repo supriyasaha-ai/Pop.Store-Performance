@@ -754,7 +754,7 @@ function setGhToken(t){ghToken=t;localStorage.setItem("gh_token",t);loadGroupsFr
 
 async function loadGroupsFromGH(){
   try{
-    const r=await fetch(GITHUB_API,{headers:ghToken?{Authorization:`token ${ghToken}`}:{}});
+    const r=await fetch(GITHUB_API,{headers:ghToken?{Authorization:`Bearer ${ghToken}`}:{}});
     if(r.ok){const d=await r.json();const content=atob(d.content.replace(/\n/g,""));const saved=JSON.parse(content);if(saved.groups!==undefined){groups=saved.groups;if(saved.charTags)charTags=saved.charTags;}else{groups=saved;}console.log("Loaded from GH:",{groups:Object.keys(groups).length,charTags:Object.keys(charTags).length,raw:JSON.parse(content)});document.getElementById("gh-status").textContent="● Groups loaded from GitHub";document.getElementById("gh-status").className="gh-status ok";if(rawData.length){renderCharTable();}if(rawData.length){renderAll();if(document.getElementById("cmp-data")?.style.display!=="none")renderCharTable();}}
   }catch(e){document.getElementById("gh-status").textContent="○ Connect GitHub to save groups";document.getElementById("gh-status").className="gh-status";}
 }
@@ -764,9 +764,9 @@ async function saveGroupsToGH(){
   try{
     const content=btoa(JSON.stringify({groups,charTags},null,2));
     let sha="";
-    try{const r=await fetch(GITHUB_API,{headers:{Authorization:`token ${ghToken}`}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
+    try{const r=await fetch(GITHUB_API,{headers:{Authorization:`Bearer ${ghToken}`}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
     const bodyObj={message:"Update popstore groups + character tags",content};if(sha)bodyObj.sha=sha;const body=bodyObj;
-    const r=await fetch(GITHUB_API,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`token ${ghToken}`},body:JSON.stringify(body)});
+    const r=await fetch(GITHUB_API,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${ghToken}`},body:JSON.stringify(body)});
     if(r.ok){document.getElementById("gh-status").textContent="● Groups saved to GitHub";document.getElementById("gh-status").className="gh-status ok";console.log("Saved to GH:",{groups:Object.keys(groups).length,charTags:Object.keys(charTags).length});}
     else{const errData=await r.json().catch(()=>({}));console.error("GH Save failed:",r.status,r.statusText,errData);document.getElementById("gh-status").textContent="✗ Save failed: "+r.status+" "+r.statusText;document.getElementById("gh-status").className="gh-status err";}
   }catch(e){document.getElementById("gh-status").textContent="✗ Error saving";document.getElementById("gh-status").className="gh-status err";}
