@@ -739,8 +739,8 @@ function actL(g){
 function detectChar(name){const n=name.toLowerCase();for(const p of PROTAGONISTS){if(n.includes(p))return p.charAt(0).toUpperCase()+p.slice(1);}return null;}
 
 // ── GITHUB GROUPS ──
-let ghToken="";
-function setGhToken(t){ghToken=t;loadGroupsFromGH();}
+let ghToken=localStorage.getItem("gh_token")||"";
+function setGhToken(t){ghToken=t;localStorage.setItem("gh_token",t);loadGroupsFromGH();}
 
 async function loadGroupsFromGH(){
   try{
@@ -750,7 +750,7 @@ async function loadGroupsFromGH(){
 }
 
 async function saveGroupsToGH(){
-  if(!ghToken){const t=prompt("Enter GitHub Personal Access Token to save groups:\n(Settings → Developer settings → Personal access tokens)");if(!t)return;ghToken=t;}
+  if(!ghToken){const t=prompt("Enter GitHub Personal Access Token to save groups:\n(Settings → Developer settings → Personal access tokens)");if(!t)return;ghToken=t;localStorage.setItem("gh_token",t);}
   try{
     const content=btoa(JSON.stringify({groups,charTags},null,2));
     let sha="";
