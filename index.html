@@ -745,17 +745,17 @@ function setGhToken(t){ghToken=t;loadGroupsFromGH();}
 async function loadGroupsFromGH(){
   try{
     const r=await fetch(GITHUB_API,{headers:ghToken?{Authorization:`token ${ghToken}`}:{}});
-    if(r.ok){const d=await r.json();const content=atob(d.content.replace(/\n/g,""));groups=JSON.parse(content);document.getElementById("gh-status").textContent="● Groups loaded from GitHub";document.getElementById("gh-status").className="gh-status ok";}
+    if(r.ok){const d=await r.json();const content=atob(d.content.replace(/\n/g,""));const saved=JSON.parse(content);if(saved.groups!==undefined){groups=saved.groups;if(saved.charTags)charTags=saved.charTags;}else{groups=saved;}document.getElementById("gh-status").textContent="● Groups loaded from GitHub";document.getElementById("gh-status").className="gh-status ok";}
   }catch(e){document.getElementById("gh-status").textContent="○ Connect GitHub to save groups";document.getElementById("gh-status").className="gh-status";}
 }
 
 async function saveGroupsToGH(){
   if(!ghToken){const t=prompt("Enter GitHub Personal Access Token to save groups:\n(Settings → Developer settings → Personal access tokens)");if(!t)return;ghToken=t;}
   try{
-    const content=btoa(JSON.stringify(groups,null,2));
+    const content=btoa(JSON.stringify({groups,charTags},null,2));
     let sha="";
     try{const r=await fetch(GITHUB_API,{headers:{Authorization:`token ${ghToken}`}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
-    const bodyObj={message:"Update popstore groups config",content};if(sha)bodyObj.sha=sha;const body=bodyObj;
+    const bodyObj={message:"Update popstore groups + character tags",content};if(sha)bodyObj.sha=sha;const body=bodyObj;
     const r=await fetch(GITHUB_API,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`token ${ghToken}`},body:JSON.stringify(body)});
     if(r.ok){document.getElementById("gh-status").textContent="● Groups saved to GitHub";document.getElementById("gh-status").className="gh-status ok";}
     else{document.getElementById("gh-status").textContent="✗ Save failed — check token";document.getElementById("gh-status").className="gh-status err";}
@@ -1796,6 +1796,8 @@ function tagChar(adName,char){
   if(char.trim())charTags[adName]=char.trim();
   else delete charTags[adName];
   renderCharTable();
+  // Auto-save to GitHub if connected
+  if(ghToken) saveGroupsToGH();
 }
 
 function renderFamilies(){
