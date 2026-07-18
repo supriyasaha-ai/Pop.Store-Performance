@@ -248,7 +248,12 @@ tr.group-row td{background:rgba(155,143,245,0.06)}
     <button class="upload-btn sec" onclick="triggerUpload('cvr')">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="11" height="11"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Upload CVR data
     </button>
-    <div class="gh-status" id="gh-status">&#9679; Groups saved to GitHub</div>
+    <div class="gh-status" id="gh-status">○ Connect GitHub to save groups</div>
+    <div style="margin-top:6px;padding:0 4px">
+      <input type="password" id="gh-token-input" placeholder="Paste GitHub token to connect"
+        style="width:100%;font-size:10px;padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit"
+        oninput="if(this.value.length>10){ghToken=this.value.trim();localStorage.setItem('gh_token',ghToken);loadGroupsFromGH();document.getElementById('gh-status').textContent='● Connected';document.getElementById('gh-status').className='gh-status ok';}">
+    </div>
   </div>
 </aside>
 
@@ -740,12 +745,17 @@ function detectChar(name){const n=name.toLowerCase();for(const p of PROTAGONISTS
 
 // ── GITHUB GROUPS ──
 let ghToken=localStorage.getItem("gh_token")||"";
+// Pre-fill token input after DOM loads
+document.addEventListener('DOMContentLoaded',()=>{
+  const inp=document.getElementById('gh-token-input');
+  if(inp&&ghToken){inp.value=ghToken;if(ghToken.length>10){document.getElementById('gh-status').textContent='● Connected';document.getElementById('gh-status').className='gh-status ok';}}
+});
 function setGhToken(t){ghToken=t;localStorage.setItem("gh_token",t);loadGroupsFromGH();}
 
 async function loadGroupsFromGH(){
   try{
     const r=await fetch(GITHUB_API,{headers:ghToken?{Authorization:`token ${ghToken}`}:{}});
-    if(r.ok){const d=await r.json();const content=atob(d.content.replace(/\n/g,""));const saved=JSON.parse(content);if(saved.groups!==undefined){groups=saved.groups;if(saved.charTags)charTags=saved.charTags;}else{groups=saved;}document.getElementById("gh-status").textContent="● Groups loaded from GitHub";document.getElementById("gh-status").className="gh-status ok";}
+    if(r.ok){const d=await r.json();const content=atob(d.content.replace(/\n/g,""));const saved=JSON.parse(content);if(saved.groups!==undefined){groups=saved.groups;if(saved.charTags)charTags=saved.charTags;}else{groups=saved;}console.log("Loaded from GH:",{groups:Object.keys(groups).length,charTags:Object.keys(charTags).length,raw:JSON.parse(content)});document.getElementById("gh-status").textContent="● Groups loaded from GitHub";document.getElementById("gh-status").className="gh-status ok";if(rawData.length){renderCharTable();}if(rawData.length){renderAll();if(document.getElementById("cmp-data")?.style.display!=="none")renderCharTable();}}
   }catch(e){document.getElementById("gh-status").textContent="○ Connect GitHub to save groups";document.getElementById("gh-status").className="gh-status";}
 }
 
@@ -757,7 +767,7 @@ async function saveGroupsToGH(){
     try{const r=await fetch(GITHUB_API,{headers:{Authorization:`token ${ghToken}`}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
     const bodyObj={message:"Update popstore groups + character tags",content};if(sha)bodyObj.sha=sha;const body=bodyObj;
     const r=await fetch(GITHUB_API,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`token ${ghToken}`},body:JSON.stringify(body)});
-    if(r.ok){document.getElementById("gh-status").textContent="● Groups saved to GitHub";document.getElementById("gh-status").className="gh-status ok";}
+    if(r.ok){document.getElementById("gh-status").textContent="● Groups saved to GitHub";document.getElementById("gh-status").className="gh-status ok";console.log("Saved to GH:",{groups:Object.keys(groups).length,charTags:Object.keys(charTags).length});}
     else{document.getElementById("gh-status").textContent="✗ Save failed — check token";document.getElementById("gh-status").className="gh-status err";}
   }catch(e){document.getElementById("gh-status").textContent="✗ Error saving";document.getElementById("gh-status").className="gh-status err";}
 }
