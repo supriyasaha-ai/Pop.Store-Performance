@@ -1802,12 +1802,16 @@ function renderCharTable(){
     </div>`).join("");
 }
 
+let saveDebounceTimer=null;
 function tagChar(adName,char){
   if(char.trim())charTags[adName]=char.trim();
   else delete charTags[adName];
   renderCharTable();
-  // Auto-save to GitHub if connected
-  if(ghToken) saveGroupsToGH();
+  // Debounced auto-save — waits 1.5s after last tag before saving
+  if(ghToken){
+    clearTimeout(saveDebounceTimer);
+    saveDebounceTimer=setTimeout(()=>saveGroupsToGH(),1500);
+  }
 }
 
 function renderFamilies(){
