@@ -768,7 +768,7 @@ async function saveGroupsToGH(){
     const bodyObj={message:"Update popstore groups + character tags",content};if(sha)bodyObj.sha=sha;const body=bodyObj;
     const r=await fetch(GITHUB_API,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`token ${ghToken}`},body:JSON.stringify(body)});
     if(r.ok){document.getElementById("gh-status").textContent="● Groups saved to GitHub";document.getElementById("gh-status").className="gh-status ok";console.log("Saved to GH:",{groups:Object.keys(groups).length,charTags:Object.keys(charTags).length});}
-    else{document.getElementById("gh-status").textContent="✗ Save failed — check token";document.getElementById("gh-status").className="gh-status err";}
+    else{const errData=await r.json().catch(()=>({}));console.error("GH Save failed:",r.status,r.statusText,errData);document.getElementById("gh-status").textContent="✗ Save failed: "+r.status+" "+r.statusText;document.getElementById("gh-status").className="gh-status err";}
   }catch(e){document.getElementById("gh-status").textContent="✗ Error saving";document.getElementById("gh-status").className="gh-status err";}
 }
 
