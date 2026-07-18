@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>POP.STORE — Video Performance Hub</title>
+<title>VideoMetrics — Video Ad Performance Analytics</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
@@ -212,8 +212,8 @@ tr.group-row td{background:rgba(155,143,245,0.06)}
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-eyebrow">Video hub</div>
-    <div class="logo-name">POP.STORE</div>
-    <div class="logo-sub">Performance Dashboard</div>
+    <div class="logo-name">VideoMetrics</div>
+    <div class="logo-sub">Video Ad Performance Analytics</div>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-sec">Analytics</div>
@@ -1615,10 +1615,10 @@ function copyAnalysis(type){
   const data=window._dd||[];if(!data.length){document.getElementById("ai-out").textContent="Upload your data first.";return;}
   const summary=data.map(g=>`Ad: ${g.name} | Status: ${g.status} | Regintent: ${g.regintent} | Score: ${g.score}/100 | Spend: $${g.spend.toFixed(0)} | Hook: ${g.hookRate}% | Hold: ${g.holdRate}% | ThruPlays: ${g.thru} | Freq: ${g.freq} | CTR: ${g.ctr}% | Eng: ${g.eng} | IGFollows: ${g.igFollows} | Trials: ${g.results} | CPT: $${g.costPerResult}`).join("\n");
   const prompts={
-    weekly:`Expert video marketing manager for POP.STORE live commerce. This week's ad performance:\n\n${summary}\n\nWeekly brief:\n\nWHAT IS WORKING\n[Top ads with numbers and why]\n\nWHAT IS NOT WORKING\n[Underperformers with plain-English reason]\n\nFATIGUE ALERTS\n[Freq>3.5, hook<25%, hold<25%]\n\nACTION LIST\n[Every ad: SCALE/PAUSE/NEW HOOK/REFRESH/MONITOR — one line each]\n\nSUMMARY\n[2-3 sentences for manager]`,
-    fatigue:`Expert video marketing manager for POP.STORE. Data:\n\n${summary}\n\nFatigued ads (freq>3.5, hook<25%, hold<25%). For each: plain-English reason + exact fix.`,
-    action:`Expert video marketing manager for POP.STORE. Data:\n\n${summary}\n\nDecision for every ad:\nAD NAME (regintent) -> DECISION -> REASON (under 15 words)\nDecisions: SCALE / MAINTAIN / NEW HOOK / REFRESH / PAUSE`,
-    script:`Expert video marketing manager for POP.STORE. Protagonists: Ariana, Lena, Mia, Polina, Noah, Brandon. Product: ECHO-ME. CTA: Comment POP.\n\nBest performers:\n${summary}\n\n3 new script angles. Each: Hook (exact 3 sec), Body, CTA, Protagonist + why. Under 100 words each.`
+    weekly:`Expert video marketing manager. This week's ad performance:\n\n${summary}\n\nWeekly brief:\n\nWHAT IS WORKING\n[Top ads with numbers and why]\n\nWHAT IS NOT WORKING\n[Underperformers with plain-English reason]\n\nFATIGUE ALERTS\n[Freq>3.5, hook<25%, hold<25%]\n\nACTION LIST\n[Every ad: SCALE/PAUSE/NEW HOOK/REFRESH/MONITOR — one line each]\n\nSUMMARY\n[2-3 sentences for manager]`,
+    fatigue:`Expert video marketing manager. Data:\n\n${summary}\n\nFatigued ads (freq>3.5, hook<25%, hold<25%). For each: plain-English reason + exact fix.`,
+    action:`Expert video marketing manager. Data:\n\n${summary}\n\nDecision for every ad:\nAD NAME (regintent) -> DECISION -> REASON (under 15 words)\nDecisions: SCALE / MAINTAIN / NEW HOOK / REFRESH / PAUSE`,
+    script:`Expert video marketing manager. Protagonists: Ariana, Lena, Mia, Polina, Noah, Brandon. Product: ECHO-ME. CTA: Comment POP.\n\nBest performers:\n${summary}\n\n3 new script angles. Each: Hook (exact 3 sec), Body, CTA, Protagonist + why. Under 100 words each.`
   };
   navigator.clipboard.writeText(prompts[type]).then(()=>{
     document.getElementById("ai-out").innerHTML=`<div style="padding:10px 12px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--purple-dim)"><div style="color:var(--purple-bright);font-weight:500;margin-bottom:5px">✓ Data copied — ${data.length} ads</div><div style="color:var(--text2);font-size:11px;line-height:1.8">1. Open <strong style="color:var(--text)">Claude.ai</strong> in a new tab<br>2. Press <strong style="color:var(--text)">Ctrl+V</strong> (Cmd+V on Mac)<br>3. Get full analysis in plain English</div></div>`;
@@ -1632,7 +1632,7 @@ async function analyzeSelected(){
   const out=document.getElementById("ai-out");const status=document.getElementById("ai-status");
   status.innerHTML='<span class="spinner"></span> Analyzing '+sel.length+' ads...';out.textContent="";
   const summary=sel.map(g=>`Ad: ${g.name} | Status: ${g.status} | Regintent: ${g.regintent} | Score: ${g.score}/100 | Spend: $${g.spend.toFixed(0)} | Hook: ${g.hookRate}% | Hold: ${g.holdRate}% | ThruPlays: ${g.thru} | Freq: ${g.freq} | Trials: ${g.results} | CPT: $${g.costPerResult}`).join("\n");
-  const prompt=`Expert video marketing manager for POP.STORE. ${sel.length} selected ads:\n\n${summary}\n\nWHAT IS WORKING\nWHAT NEEDS ATTENTION\nFATIGUE ALERTS\nACTION LIST (every ad: SCALE/PAUSE/NEW HOOK/REFRESH/MONITOR)\nSUMMARY (2-3 sentences)`;
+  const prompt=`Expert video marketing manager. ${sel.length} selected ads:\n\n${summary}\n\nWHAT IS WORKING\nWHAT NEEDS ATTENTION\nFATIGUE ALERTS\nACTION LIST (every ad: SCALE/PAUSE/NEW HOOK/REFRESH/MONITOR)\nSUMMARY (2-3 sentences)`;
   try{
     const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
     const json=await resp.json();out.textContent=json.content?.find(b=>b.type==="text")?.text||"No response.";status.textContent="";
